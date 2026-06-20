@@ -17,3 +17,17 @@ body {
 .no-scrollbar::-webkit-scrollbar {
 	display: none;
 }
+
+.compact-datetime {
+	appearance: none;
+	-moz-appearance: textfield;
+	color-scheme: light;
+	font-size: 0.75rem;
+	line-height: 1rem;
+}
+
+.compact-datetime::-webkit-calendar-picker-indicator,
+.compact-datetime::-webkit-inner-spin-button {
+	display: none;
+	-webkit-appearance: none;
+}

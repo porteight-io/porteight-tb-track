@@ -9,6 +9,21 @@ import { ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTracking } from "@/hooks/useTracking";
 
+function formatDateTimeDisplay(date: string, time: string) {
+  if (!date) return "";
+  const [year, month, day] = date.split("-");
+  return `${day}/${month}/${year} ${time || "00:00"}`;
+}
+
+function toDateTimeLocal(date: string, time: string) {
+  return date && time ? `${date}T${time}` : "";
+}
+
+function fromDateTimeLocal(value: string) {
+  const [date = "", time = ""] = value.split("T");
+  return { date, time: time.slice(0, 5) };
+}
+
 export default function FilterBar() {
   const [regNumber, setRegNumber] = useState("Truck No.");
   const [vehicleNumbers, setVehicleNumbers] = useState<VehicleNumber[]>([]);
@@ -22,8 +37,10 @@ export default function FilterBar() {
 
   const [search, setSearch] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const dateRangeRef = useRef<HTMLDivElement>(null);
 
   const { setTrackPath, setTruckData } = useTracking();
 
@@ -62,6 +79,13 @@ export default function FilterBar() {
       ) {
         setIsDropdownOpen(false);
       }
+
+      if (
+        dateRangeRef.current &&
+        !dateRangeRef.current.contains(event.target as Node)
+      ) {
+        setIsDateRangeOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -94,6 +118,11 @@ export default function FilterBar() {
       vehicleNumbers.find((item) => item.registrationNo === regNumber) ?? null,
     [vehicleNumbers, regNumber],
   );
+
+  const dateRangeLabel = useMemo(() => {
+    if (!startDate || !endDate) return "Select date range";
+    return `${formatDateTimeDisplay(startDate, startTime)} - ${formatDateTimeDisplay(endDate, endTime)}`;
+  }, [startDate, startTime, endDate, endTime]);
 
   const handleSubmit = async () => {
     const payload = buildPayload();
@@ -151,7 +180,7 @@ export default function FilterBar() {
       )}
 
       <div className="flex items-center gap-3 w-full justify-between">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-5">
           <div ref={dropdownRef} className="relative min-w-[200px] flex-1">
             <div className="flex h-9 items-center rounded border border-gray-300 bg-white px-3">
               <input
@@ -200,34 +229,42 @@ export default function FilterBar() {
             )}
           </div>
 
-          <div className="flex h-9 items-center gap-1 rounded border border-gray-300 bg-white px-2 text-sm text-gray-600">
-            <input
-              type="date"
-              value={startDate}
-              max={endDate || undefined}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-[118px] border-0 bg-transparent outline-none"
-            />
-            <input
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              className="w-[72px] border-0 bg-transparent outline-none"
-            />
-            <span className="px-1 text-gray-400">-</span>
-            <input
-              type="date"
-              value={endDate}
-              min={startDate || undefined}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-[118px] border-0 bg-transparent outline-none"
-            />
-            <input
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              className="w-[72px] border-0 bg-transparent outline-none"
-            />
+          <div ref={dateRangeRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setIsDateRangeOpen((open) => !open)}
+              className="flex h-9 items-center whitespace-nowrap rounded border border-gray-300 bg-white px-3 text-xs text-gray-600"
+            >
+              {dateRangeLabel}
+            </button>
+
+            {isDateRangeOpen && (
+              <div className="absolute z-50 mt-1 flex items-center gap-2 rounded border border-gray-300 bg-white p-2 shadow-lg">
+                <input
+                  type="datetime-local"
+                  value={toDateTimeLocal(startDate, startTime)}
+                  max={toDateTimeLocal(endDate, endTime) || undefined}
+                  onChange={(e) => {
+                    const { date, time } = fromDateTimeLocal(e.target.value);
+                    setStartDate(date);
+                    setStartTime(time);
+                  }}
+                  className="compact-datetime w-[150px] rounded border border-gray-200 px-2 py-1 text-xs outline-none"
+                />
+                <span className="text-xs text-gray-400">-</span>
+                <input
+                  type="datetime-local"
+                  value={toDateTimeLocal(endDate, endTime)}
+                  min={toDateTimeLocal(startDate, startTime) || undefined}
+                  onChange={(e) => {
+                    const { date, time } = fromDateTimeLocal(e.target.value);
+                    setEndDate(date);
+                    setEndTime(time);
+                  }}
+                  className="compact-datetime w-[150px] rounded border border-gray-200 px-2 py-1 text-xs outline-none"
+                />
+              </div>
+            )}
           </div>
 
           <button
