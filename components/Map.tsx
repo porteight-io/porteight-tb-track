@@ -1,10 +1,10 @@
 "use client";
 
-import { calculateDistance } from "@/helpers/calculateDistance";
 import { useTracking } from "@/hooks/useTracking";
 import { APIProvider, Map, Marker, useMap } from "@vis.gl/react-google-maps";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
-import { useEffect, useMemo } from "react";
+import { Menu, Printer, Settings } from "lucide-react";
+import { useEffect } from "react";
 
 function Polyline() {
   const map = useMap();
@@ -18,7 +18,7 @@ function Polyline() {
     const polyline = new mapsLibrary.Polyline({
       path: trackPath,
       geodesic: true,
-      strokeColor: "#008000",
+      strokeColor: "#4A90E2",
       strokeOpacity: 1,
       strokeWeight: 5,
     });
@@ -37,20 +37,6 @@ function Polyline() {
 
 function MapContent() {
   const { trackPath } = useTracking();
-  const coreLibrary = useMapsLibrary("core");
-  const geometryLibrary = useMapsLibrary("geometry");
-
-  const distance = useMemo(() => {
-    if (!coreLibrary || !geometryLibrary || trackPath.length < 2) return 0.0;
-    return calculateDistance(trackPath, coreLibrary, geometryLibrary);
-  }, [trackPath, coreLibrary, geometryLibrary]);
-
-  const fuelConsumed = useMemo(() => {
-    if (!coreLibrary || !geometryLibrary || trackPath.length < 2) return 0.0;
-    // const distance: any = calculateDistance(trackPath, coreLibrary, geometryLibrary);
-    const fuelEfficiency = 2.41;
-    return (Number(distance) / fuelEfficiency).toFixed(2);
-  }, [trackPath, coreLibrary, geometryLibrary, distance]);
 
   return (
     <>
@@ -66,48 +52,61 @@ function MapContent() {
             <Marker
               position={trackPath[0]}
               title="Start"
+              label={{
+                text: "4",
+                color: "white",
+                fontWeight: "bold",
+              }}
               icon={{
-                path: "M 0,0 m -6,0 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0",
+                path: "M 0,0 m -10,0 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0",
                 scale: 1,
-                fillColor: "#FF0000",
+                fillColor: "#E53935",
                 fillOpacity: 1,
                 strokeColor: "#ffffff",
                 strokeWeight: 2,
               }}
             />
-            <Marker position={trackPath[trackPath.length - 1]} title="End" />
+            <Marker
+              position={trackPath[trackPath.length - 1]}
+              title="End"
+              label={{
+                text: "8",
+                color: "white",
+                fontWeight: "bold",
+              }}
+              icon={{
+                path: "M 0,0 m -10,0 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0",
+                scale: 1,
+                fillColor: "#E53935",
+                fillOpacity: 1,
+                strokeColor: "#ffffff",
+                strokeWeight: 2,
+              }}
+            />
           </>
         )}
         <Polyline />
       </Map>
 
-      {/* Stats overlay — distance now computed inside APIProvider context */}
-      <div className="absolute left-2 top-15 z-40 w-43 text-xs overflow-hidden bg-white px-4 py-3 shadow-lg space-y-1">
-  {[
-    { label: "Distance", value: `${distance} km` },
-    { label: "Fuel Consumed", value: `${fuelConsumed} ltr` },
-    { label: "kmpl", value: "2.41" },
-    { label: "DEF Consumed", value: "1.18 ltr" },
-    { label: "Duration(hh:mm:ss)", value: "" },
-    { label: "Running Time", value: "06:47:00" },
-    { label: "Idling Time", value: "00:23:00" },
-    { label: "Halt Time", value: "07:08:00" },
-  ].map(({ label, value }) => (
-    <div key={label} className="grid grid-cols-[1fr_auto] items-center text-xs text-nowrap">
-      <span className={`pr-2 ${label !== "Duration(hh:mm:ss)" ? 'border-r-2 border-gray-300' : 'text-gray-500 text-center my-1'}`}>{label}</span>
-      <span className="pl-2 text-right">{value}</span>
-    </div>
-  ))}
-</div>
+      <div className="absolute right-0 top-3 z-40 flex flex-col items-center gap-2">
+        {[Menu, Printer, Settings].map((Icon, index) => (
+          <button
+            key={index}
+            type="button"
+            className={`flex h-9 w-9 items-center justify-center ${index === 0 ? "rounded-l-full mb-3 w-14" : "rounded-full"} bg-[#4B2C6D] text-white shadow-md`}
+            aria-label={`Map action ${index + 1}`}
+          >
+            {index === 1 ? <i className="fas fa-print text-white text-xs"></i> : index === 2 ? <i className="fas fa-cog text-white text-xs"></i> : <Icon size={16} fill="white" />}
+          </button>
+        ))}
+      </div>
     </>
   );
 }
 
-export default function MapPanel() {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string;
-
+export default function MapPanel({ apiKey }: { apiKey: string }) {
   return (
-    <section className="relative h-[calc(100vh-260px)] w-full overflow-hidden border border-gray-200">
+    <section className="relative min-h-0 flex-1 overflow-hidden">
       <APIProvider apiKey={apiKey} libraries={["core", "maps", "geometry"]}>
         <MapContent />
       </APIProvider>

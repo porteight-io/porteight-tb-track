@@ -2,19 +2,33 @@
 
 import FilterBar from "@/components/FilterTabs";
 import MapPanel from "@/components/Map";
+import PlaybackBar from "@/components/PlaybackBar";
+import Sidebar from "@/components/Sidebar";
 import UpperNavbar from "@/components/UpperNavbar";
-import VehicleInfo from "@/components/VehilcleInfo";
 
-export default function HeroPage() {
+export default function HeroPage({
+  googleMapsApiKey,
+}: {
+  googleMapsApiKey: string;
+}) {
   return (
-    <main className="min-h-screen bg-[#f4f6fb]">
-      <UpperNavbar />
+    <main className="flex h-screen bg-[#f0f1f3]">
+      <Sidebar />
 
-      <section className="flex flex-col">
-        <VehicleInfo />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <UpperNavbar />
         <FilterBar />
-        <MapPanel />
-      </section>
+        <div className="bg-[#4B2C6D] h-4 w-full ml-[1px] flex items-center justify-center">
+          <div className="bg-[#35184D] h-full w-[126px] flex items-center justify-center">
+            <i
+              className="fas fa-angle-double-up text-white text-xs my-1"
+              aria-hidden="true"
+            ></i>
+          </div>
+        </div>
+        <MapPanel apiKey={googleMapsApiKey} />
+        <PlaybackBar />
+      </div>
     </main>
   );
 }

@@ -24,19 +24,18 @@
     "@vis.gl/react-google-maps": "^1.8.3",
     "axios": "^1.17.0",
     "drizzle-orm": "^0.45.2",
-    "lucide-react": "^1.17.0",
+    "lucide-react": "^1.21.0",
     "mysql2": "^3.22.5",
     "next": "16.2.7",
     "node-geocoder": "^4.4.1",
     "postgres": "^3.4.9",
     "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "react-window": "^2.2.7"
+    "react-dom": "19.2.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/googlemaps": "^3.43.3",
-    "@types/node": "^20",
+    "@types/node": "^20.19.43",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv": "^17.4.2",
