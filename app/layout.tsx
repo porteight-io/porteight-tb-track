@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "iALERT | Vehicle Path Tracker",
+  title: "TB Track | Vehicle Path Tracker",
   description: "Responsive vehicle tracking dashboard with playback, filters, and route summary.",
 };
 
