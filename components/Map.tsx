@@ -1,6 +1,7 @@
 "use client";
 
 import { useTracking } from "@/hooks/useTracking";
+import { endMarkerIconUrl, startMarkerIconUrl } from "@/helpers/mapMarkerIcon";
 import { APIProvider, Map, Marker, useMap } from "@vis.gl/react-google-maps";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { Menu, Printer, Settings } from "lucide-react";
@@ -35,6 +36,39 @@ function Polyline() {
   return null;
 }
 
+function RouteMarkers() {
+  const { trackPath } = useTracking();
+  const coreLibrary = useMapsLibrary("core");
+
+  if (trackPath.length === 0 || !coreLibrary) return null;
+
+  const iconSize = new coreLibrary.Size(64, 64);
+  const iconAnchor = new coreLibrary.Point(24, 32);
+
+  return (
+    <>
+      <Marker
+        position={trackPath[0]}
+        title="Start"
+        icon={{
+          url: startMarkerIconUrl,
+          scaledSize: iconSize,
+          anchor: iconAnchor,
+        }}
+      />
+      <Marker
+        position={trackPath[trackPath.length - 1]}
+        title="End"
+        icon={{
+          url: endMarkerIconUrl,
+          scaledSize: iconSize,
+          anchor: iconAnchor,
+        }}
+      />
+    </>
+  );
+}
+
 function MapContent() {
   const { trackPath } = useTracking();
 
@@ -47,44 +81,7 @@ function MapContent() {
         disableDefaultUI={false}
         className="h-full w-full"
       >
-        {trackPath.length > 0 && (
-          <>
-            <Marker
-              position={trackPath[0]}
-              title="Start"
-              label={{
-                text: "4",
-                color: "white",
-                fontWeight: "bold",
-              }}
-              icon={{
-                path: "M 0,0 m -10,0 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0",
-                scale: 1,
-                fillColor: "#E53935",
-                fillOpacity: 1,
-                strokeColor: "#ffffff",
-                strokeWeight: 2,
-              }}
-            />
-            <Marker
-              position={trackPath[trackPath.length - 1]}
-              title="End"
-              label={{
-                text: "8",
-                color: "white",
-                fontWeight: "bold",
-              }}
-              icon={{
-                path: "M 0,0 m -10,0 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0",
-                scale: 1,
-                fillColor: "#E53935",
-                fillOpacity: 1,
-                strokeColor: "#ffffff",
-                strokeWeight: 2,
-              }}
-            />
-          </>
-        )}
+        {trackPath.length > 0 && <RouteMarkers />}
         <Polyline />
       </Map>
 
