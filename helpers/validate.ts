@@ -1,6 +1,8 @@
 import {
   DateRange,
   FilterPayload,
+  HistoryData,
+  Stoppage,
 } from "@/interfaces/interface";
 import axios from "axios";
 
@@ -60,6 +62,65 @@ export function segmentTrackingData(trackingHistoryData: any) {
   return segments;
 }
 
+const STOPPAGE_MIN_IDLE_MS = 5 * 60 * 1000;
+
+export function detectStoppages(points: HistoryData[]): Stoppage[] {
+  if (points.length === 0) return [];
+
+  const sorted = [...points].sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+  );
+
+  const stoppages: Stoppage[] = [];
+  let idleStart: HistoryData | null = null;
+  let lastOffTimestamp: string | null = null;
+
+  const finalizeIdlePeriod = (endTimestamp: string) => {
+    if (!idleStart) return;
+
+    const startMs = new Date(idleStart.timestamp).getTime();
+    const endMs = new Date(endTimestamp).getTime();
+    const durationMs = endMs - startMs;
+
+    if (durationMs > STOPPAGE_MIN_IDLE_MS) {
+      stoppages.push({
+        id: stoppages.length + 1,
+        lat: Number(idleStart.latitude),
+        lng: Number(idleStart.longitude),
+        heading: Number(idleStart.heading) || 0,
+        startTime: idleStart.timestamp,
+        endTime: endTimestamp,
+        durationMs,
+      });
+    }
+
+    idleStart = null;
+    lastOffTimestamp = null;
+  };
+
+  for (const point of sorted) {
+    const isOff = point.eventData_ignitionStatus?.toUpperCase() === "OFF";
+
+    if (isOff) {
+      if (!idleStart) {
+        idleStart = point;
+      }
+      lastOffTimestamp = point.timestamp;
+      continue;
+    }
+
+    if (idleStart) {
+      finalizeIdlePeriod(point.timestamp);
+    }
+  }
+
+  if (idleStart && lastOffTimestamp) {
+    finalizeIdlePeriod(lastOffTimestamp);
+  }
+
+  return stoppages;
+}
+
 export const fetchTrackingHistory = async (
   truckId: string,
   range?: DateRange,
@@ -72,6 +133,7 @@ export const fetchTrackingHistory = async (
         `${simulatorUrl}/api/tracking-history?truckId=${truckId}&dateFrom=${toISTDate(range.from)}&dateTo=${toISTDate(range.to)}`,
       );
       const simulatorData = simulatorResponse.data;
+      console.log(simulatorData);
       return {
         data: segmentTrackingData(simulatorData),
         length: simulatorData.data.length,

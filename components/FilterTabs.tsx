@@ -1,9 +1,10 @@
 import {
+  detectStoppages,
   fetchTrackingHistory,
   getTodayString,
   validateFilters,
 } from "@/helpers/validate";
-import { FilterPayload, VehicleNumber } from "@/interfaces/interface";
+import { FilterPayload, HistoryData, VehicleNumber } from "@/interfaces/interface";
 import { getRegNo } from "@/services/regno.service";
 import { ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -42,13 +43,14 @@ export default function FilterBar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const dateRangeRef = useRef<HTMLDivElement>(null);
 
-  const { setTrackPath, setTruckData } = useTracking();
+  const { setTrackPath, setTruckData, setStoppages } = useTracking();
 
   useEffect(() => {
     const fetchAndSeed = async () => {
       try {
         const numbers = await getRegNo();
         setVehicleNumbers(numbers);
+        console.log(numbers);
 
         const first = numbers?.[0];
         if (first) {
@@ -145,14 +147,15 @@ export default function FilterBar() {
         to: toDate,
       });
 
-      const flattenedData = response?.data?.flat() || [];
+      const flattenedData = (response?.data?.flat() || []) as HistoryData[];
 
-      const coordinates = flattenedData.map((item: { latitude: string; longitude: string }) => ({
+      const coordinates = flattenedData.map((item) => ({
         lat: Number(item.latitude),
         lng: Number(item.longitude),
       }));
 
       setTrackPath(coordinates);
+      setStoppages(detectStoppages(flattenedData));
 
       const latestEvent = flattenedData[flattenedData.length - 1];
 
@@ -165,6 +168,7 @@ export default function FilterBar() {
       });
     } catch (err) {
       console.error(err);
+      setStoppages([]);
       setError(
         err instanceof Error ? err.message : "Failed to fetch tracking data.",
       );

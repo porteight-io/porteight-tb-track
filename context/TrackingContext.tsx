@@ -5,6 +5,7 @@ import {
   useState,
   ReactNode,
 } from "react";
+import { Stoppage } from "@/interfaces/interface";
 
 type TrackPoint = {
   lat: number;
@@ -17,15 +18,15 @@ type TruckProp = {
   lat?: number;
   lng?: number;
   model?: string;
-  // reporting_time: string;
-  // current_location: string;
-}
+};
 
 type TrackingContextType = {
   trackPath: TrackPoint[];
+  stoppages: Stoppage[];
   truckData: TruckProp;
   setTruckData: React.Dispatch<React.SetStateAction<TruckProp>>;
   setTrackPath: React.Dispatch<React.SetStateAction<TrackPoint[]>>;
+  setStoppages: React.Dispatch<React.SetStateAction<Stoppage[]>>;
 };
 
 export const TrackingContext = createContext<TrackingContextType | undefined>(
@@ -38,6 +39,7 @@ export function TrackingProvider({
   children: ReactNode;
 }) {
   const [trackPath, setTrackPath] = useState<TrackPoint[]>([]);
+  const [stoppages, setStoppages] = useState<Stoppage[]>([]);
   const [truckData, setTruckData] = useState<TruckProp>({
     truck_no: "",
     eventStatus: "",
@@ -53,8 +55,10 @@ export function TrackingProvider({
       value={{
         trackPath,
         setTrackPath,
+        stoppages,
+        setStoppages,
         truckData,
-        setTruckData
+        setTruckData,
       }}
     >
       {children}

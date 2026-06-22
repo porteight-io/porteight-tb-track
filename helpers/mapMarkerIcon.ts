@@ -1,62 +1,65 @@
 type PinMarkerOptions = {
-  color: string;
-  darkColor: string;
+  color?: string;
   number: string;
 };
 
-function createPinMarkerSvg({ color, darkColor, number }: PinMarkerOptions) {
-  return `<svg width="100%" viewBox="0 0 680 320" role="img" xmlns="http://www.w3.org/2000/svg">
-  <title>Map pin with checkered flag</title>
-  <g transform="translate(340, 30)">
-    <ellipse cx="0" cy="195" rx="12" ry="4" fill="#00000022"/>
+function createPinMarkerSvg({ color = "#dc2626", number }: PinMarkerOptions) {
+  const fontSize = number.length > 1 ? 11 : 14;
 
-    <path d="M0 185 C-48 185 -62 145 -62 110 C-62 55 -35 20 0 20 C35 20 62 55 62 110 C62 145 48 185 0 185 Z" fill="${color}"/>
-    <path d="M0 185 C-48 185 -62 145 -62 110 C-62 80 -45 50 -20 35 C-10 65 -5 100 0 120 C5 100 10 65 20 35 C45 50 62 80 62 110 C62 145 48 185 0 185 Z" fill="${darkColor}" opacity="0.4"/>
+  return `<svg
+    width="44"
+    height="56"
+    viewBox="0 0 44 56"
+    xmlns="http://www.w3.org/2000/svg"
+>
+    <defs>
+        <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+            <feDropShadow
+                dx="0"
+                dy="2"
+                stdDeviation="2"
+                flood-color="#000"
+                flood-opacity="0.28"
+            />
+        </filter>
+    </defs>
 
-    <circle cx="0" cy="105" r="40" fill="white" opacity="0.95"/>
+    <g filter="url(#shadow)">
+        <!-- Circle -->
+        <circle
+            cx="22"
+            cy="20"
+            r="18"
+            fill="${color}"
+            stroke="#c62828"
+            stroke-width="2"
+        />
+
+        <!-- Bottom point -->
+        <path
+            d="M17 34
+               L22 48
+               L27 34
+               Q22 38 17 34Z"
+            fill="${color}"
+            stroke="#c62828"
+            stroke-width="2"
+            stroke-linejoin="round"
+        />
+    </g>
 
     <text
-      x="0"
-      y="90"
-      text-anchor="middle"
-      font-family="Arial, sans-serif"
-      font-size="40"
-      font-weight="700"
-      fill="${color}"
+        x="22"
+        y="22"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Georgia, serif"
+        font-size="${fontSize}"
+        font-weight="700"
+        fill="#fff"
     >
-      ${number}
+        ${number}
     </text>
-
-    <line
-      x1="10"
-      y1="12"
-      x2="10"
-      y2="-144"
-      stroke="white"
-      stroke-width="4"
-      stroke-linecap="round"
-    />
-
-    <g transform="translate(10,-144) scale(4.2)">
-      <rect x="0" y="0" width="10" height="10" fill="${color}"/>
-      <rect x="10" y="0" width="10" height="10" fill="white"/>
-      <rect x="20" y="0" width="10" height="10" fill="${color}"/>
-      <rect x="30" y="0" width="10" height="10" fill="white"/>
-      <rect x="40" y="0" width="10" height="10" fill="${color}"/>
-
-      <rect x="0" y="10" width="10" height="10" fill="white"/>
-      <rect x="10" y="10" width="10" height="10" fill="${color}"/>
-      <rect x="20" y="10" width="10" height="10" fill="white"/>
-      <rect x="30" y="10" width="10" height="10" fill="${color}"/>
-      <rect x="40" y="10" width="10" height="10" fill="white"/>
-
-      <rect x="0" y="20" width="10" height="10" fill="${color}"/>
-      <rect x="10" y="20" width="10" height="10" fill="white"/>
-      <rect x="20" y="20" width="10" height="10" fill="${color}"/>
-      <rect x="30" y="20" width="10" height="10" fill="white"/>
-      <rect x="40" y="20" width="10" height="10" fill="${color}"/>
-    </g>
-  </g>
 </svg>`;
 }
 
@@ -66,16 +69,16 @@ function toDataUrl(svg: string) {
 
 export const startMarkerIconUrl = toDataUrl(
   createPinMarkerSvg({
-    color: "#E53935",
-    darkColor: "#CC2222",
     number: "4",
   }),
 );
 
 export const endMarkerIconUrl = toDataUrl(
   createPinMarkerSvg({
-    color: "#43A047",
-    darkColor: "#2E7D32",
     number: "8",
   }),
 );
+
+export function getStoppageMarkerIconUrl(number: number) {
+  return toDataUrl(createPinMarkerSvg({ number: String(number) }));
+}

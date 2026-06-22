@@ -1,7 +1,7 @@
 "use client";
 
 import { useTracking } from "@/hooks/useTracking";
-import { endMarkerIconUrl, startMarkerIconUrl } from "@/helpers/mapMarkerIcon";
+import { getStoppageMarkerIconUrl } from "@/helpers/mapMarkerIcon";
 import { APIProvider, Map, Marker, useMap } from "@vis.gl/react-google-maps";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { Menu, Printer, Settings } from "lucide-react";
@@ -9,7 +9,7 @@ import { useEffect } from "react";
 
 function Polyline() {
   const map = useMap();
-  const { trackPath } = useTracking();
+  const { trackPath, stoppages } = useTracking();
   const mapsLibrary = useMapsLibrary("maps");
   const coreLibrary = useMapsLibrary("core");
 
@@ -28,22 +28,24 @@ function Polyline() {
 
     const bounds = new coreLibrary.LatLngBounds();
     trackPath.forEach((point) => bounds.extend(point));
+    stoppages.forEach((stoppage) =>
+      bounds.extend({ lat: stoppage.lat, lng: stoppage.lng }),
+    );
     map.fitBounds(bounds);
 
     return () => polyline.setMap(null);
-  }, [map, mapsLibrary, coreLibrary, trackPath]);
+  }, [map, mapsLibrary, coreLibrary, trackPath, stoppages]);
 
   return null;
 }
 
 function RouteMarkers() {
-  const { trackPath } = useTracking();
+  const { trackPath, stoppages } = useTracking();
   const coreLibrary = useMapsLibrary("core");
 
   if (trackPath.length === 0 || !coreLibrary) return null;
 
-  const iconSize = new coreLibrary.Size(64, 64);
-  const iconAnchor = new coreLibrary.Point(24, 32);
+  const iconSize = new coreLibrary.Size(44, 44);
 
   return (
     <>
@@ -51,20 +53,32 @@ function RouteMarkers() {
         position={trackPath[0]}
         title="Start"
         icon={{
-          url: startMarkerIconUrl,
+          url: "/endFlag-v5.png",
           scaledSize: iconSize,
-          anchor: iconAnchor,
+          anchor: new coreLibrary.Point(10, 30),
         }}
       />
       <Marker
         position={trackPath[trackPath.length - 1]}
         title="End"
         icon={{
-          url: endMarkerIconUrl,
+          url: "/startFlag-v5.png",
           scaledSize: iconSize,
-          anchor: iconAnchor,
+          anchor: new coreLibrary.Point(10, 40),
         }}
       />
+      {stoppages.map((stoppage) => (
+        <Marker
+          key={`stoppage-${stoppage.id}`}
+          position={{ lat: stoppage.lat, lng: stoppage.lng }}
+          title={`Stoppage ${stoppage.id}`}
+          icon={{
+            url: getStoppageMarkerIconUrl(stoppage.id),
+            scaledSize: new coreLibrary.Size(40, 50),
+            anchor: new coreLibrary.Point(20, 50),
+          }}
+        />
+      ))}
     </>
   );
 }
@@ -93,7 +107,13 @@ function MapContent() {
             className={`flex h-9 w-9 items-center justify-center ${index === 0 ? "rounded-l-full mb-3 w-14" : "rounded-full"} bg-[#4B2C6D] text-white shadow-md`}
             aria-label={`Map action ${index + 1}`}
           >
-            {index === 1 ? <i className="fas fa-print text-white text-xs"></i> : index === 2 ? <i className="fas fa-cog text-white text-xs"></i> : <Icon size={16} fill="white" />}
+            {index === 1 ? (
+              <i className="fas fa-print text-white text-xs"></i>
+            ) : index === 2 ? (
+              <i className="fas fa-cog text-white text-xs"></i>
+            ) : (
+              <Icon size={16} fill="white" />
+            )}
           </button>
         ))}
       </div>

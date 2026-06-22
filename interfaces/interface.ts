@@ -56,6 +56,18 @@ export interface HistoryData {
   poGeneratedBy: string;
   poGivenTo: string;
   truckId: string;
-  registrationNo:string
+  registrationNo: string;
   eventData_ignitionStatus: string;
+  speed?: string;
+  deviceOdometer?: string;
+}
+
+export interface Stoppage {
+  id: number;
+  lat: number;
+  lng: number;
+  heading: number;
+  startTime: string;
+  endTime: string;
+  durationMs: number;
 }

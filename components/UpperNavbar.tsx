@@ -1,4 +1,5 @@
 import { Bell, DollarSign, Menu, RefreshCw, Settings } from "lucide-react";
+import Image from "next/image";
 
 export default function UpperNavbar() {
   return (
@@ -39,7 +40,8 @@ export default function UpperNavbar() {
           className="flex h-8 w-8 items-center justify-center text-gray-600"
           aria-label="Refresh"
         >
-          <RefreshCw size={18} />
+          {/* <RefreshCw size={18} /> */}
+          <Image src="/refresh.png" alt="Refresh" width={24} height={16} />
         </button>
 
         <button
