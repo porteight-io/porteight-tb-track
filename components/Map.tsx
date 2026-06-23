@@ -92,7 +92,7 @@ function MapContent() {
         defaultCenter={{ lat: 28.6139, lng: 77.209 }}
         defaultZoom={15}
         gestureHandling="greedy"
-        disableDefaultUI={false}
+        mapTypeControl={false}
         className="h-full w-full"
       >
         {trackPath.length > 0 && <RouteMarkers />}

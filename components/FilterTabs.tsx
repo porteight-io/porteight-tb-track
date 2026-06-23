@@ -9,6 +9,7 @@ import { getRegNo } from "@/services/regno.service";
 import { ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTracking } from "@/hooks/useTracking";
+import { RiArrowDropDownFill } from "@remixicon/react";
 
 function formatDateTimeDisplay(date: string, time: string) {
   if (!date) return "";
@@ -184,8 +185,8 @@ export default function FilterBar() {
       )}
 
       <div className="flex items-center gap-3 w-full justify-between">
-        <div className="flex items-center justify-between gap-5">
-          <div ref={dropdownRef} className="relative min-w-[200px] flex-1">
+        <div className="flex items-center justify-between gap-4">
+          <div ref={dropdownRef} className="relative min-w-[260px] flex-1">
             <div className="flex h-9 items-center rounded border border-gray-300 bg-white px-3">
               <input
                 type="text"
@@ -197,9 +198,9 @@ export default function FilterBar() {
                   setRegNumber(e.target.value);
                   setIsDropdownOpen(true);
                 }}
-                className="w-full bg-transparent text-sm text-gray-700 outline-none"
+                className="w-full bg-transparent text-sm text-gray-400 outline-none"
               />
-              <ChevronDown size={16} className="shrink-0 text-gray-500" />
+              <RiArrowDropDownFill size={16} className="absolute right-0 top-3 mr-2 text-slate-500" />
             </div>
 
             {isDropdownOpen && (
@@ -237,7 +238,7 @@ export default function FilterBar() {
             <button
               type="button"
               onClick={() => setIsDateRangeOpen((open) => !open)}
-              className="flex h-9 items-center whitespace-nowrap rounded border border-gray-300 bg-white px-3 text-xs text-gray-600"
+              className="flex h-9 items-center whitespace-nowrap rounded border border-gray-300 bg-white px-3 text-[13px] text-gray-500 w-[265px]"
             >
               {dateRangeLabel}
             </button>
@@ -275,7 +276,7 @@ export default function FilterBar() {
             type="button"
             onClick={handleSubmit}
             disabled={isLoading}
-            className="h-9 rounded bg-[#4B2C6D] px-6 text-xs font-medium text-white transition-colors hover:bg-[#3d2459] disabled:opacity-60"
+            className="h-9 rounded bg-[#4B2C6D] px-5 text-xs font-medium text-white transition-colors hover:bg-[#3d2459] disabled:opacity-60"
           >
             {isLoading ? "Loading..." : "Search"}
           </button>

@@ -25,7 +25,18 @@ function createPinMarkerSvg({ color = "#dc2626", number }: PinMarkerOptions) {
     </defs>
 
     <g filter="url(#shadow)">
-        <!-- Circle -->
+    <!-- Bottom point -->
+    <path
+        d="M17 34
+           L22 48
+           L27 34
+           Q22 38 17 34Z"
+        fill="${color}"
+        stroke="#c62828"
+        stroke-width="2"
+        stroke-linejoin="round"
+    />
+    <!-- Circle -->
         <circle
             cx="22"
             cy="20"
@@ -35,17 +46,6 @@ function createPinMarkerSvg({ color = "#dc2626", number }: PinMarkerOptions) {
             stroke-width="2"
         />
 
-        <!-- Bottom point -->
-        <path
-            d="M17 34
-               L22 48
-               L27 34
-               Q22 38 17 34Z"
-            fill="${color}"
-            stroke="#c62828"
-            stroke-width="2"
-            stroke-linejoin="round"
-        />
     </g>
 
     <text
