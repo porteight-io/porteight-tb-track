@@ -45,7 +45,7 @@ function RouteMarkers() {
 
   if (trackPath.length === 0 || !coreLibrary) return null;
 
-  const iconSize = new coreLibrary.Size(44, 44);
+  const iconSize = new coreLibrary.Size(48, 48);
 
   return (
     <>

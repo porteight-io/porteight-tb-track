@@ -18,30 +18,11 @@ export default function UpperNavbar() {
       <div className="flex items-center gap-4">
         <button
           type="button"
-          className="flex h-8 w-8 items-center justify-center rounded-full font-bold bg-linear-to-b from-[#4B2C6D] to-[#dd6bc5] text-white"
-          aria-label="Billing"
-        >
-          <DollarSign size={18} />
-        </button>
-
-        <button
-          type="button"
-          className="relative flex h-8 w-8 items-center justify-center text-gray-600"
-          aria-label="Notifications"
-        >
-          <Bell size={18} />
-          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-            2
-          </span>
-        </button>
-
-        <button
-          type="button"
           className="flex h-8 w-8 items-center justify-center text-gray-600"
           aria-label="Refresh"
         >
-          {/* <RefreshCw size={18} /> */}
-          <Image src="/refresh.png" alt="Refresh" width={24} height={16} />
+          {/* <RefreshCw size={18} color="#4B2C6D" /> */}
+          <Image src="/refresh-v2.png" alt="Refresh" width={26} height={26} />
         </button>
 
         <button
@@ -49,7 +30,7 @@ export default function UpperNavbar() {
           className="flex h-8 w-8 items-center justify-center text-gray-600"
           aria-label="Settings"
         >
-          <Settings size={18} />
+          <Settings size={20} color="#4B2C6D" />
         </button>
       </div>
     </header>

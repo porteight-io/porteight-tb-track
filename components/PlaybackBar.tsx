@@ -1,19 +1,32 @@
 "use client";
 
 import { getPathDistanceKm } from "@/helpers/calculateDistance";
+import {
+  formatTimestamp,
+  getPlaybackStats,
+} from "@/helpers/playbackStats";
 import { useTracking } from "@/hooks/useTracking";
-import { ChevronDown, Filter, Play } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Filter, Play } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function PlaybackBar() {
-  const { trackPath } = useTracking();
-  const [speed, setSpeed] = useState("2x");
+  const { trackPath, historyData, truckData } = useTracking();
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    setProgress(0);
+    setIsPlaying(false);
+  }, [truckData.truck_no, historyData]);
 
   const totalDistance = useMemo(
     () => getPathDistanceKm(trackPath),
     [trackPath],
+  );
+
+  const playbackStats = useMemo(
+    () => getPlaybackStats(historyData, trackPath, progress),
+    [historyData, trackPath, progress],
   );
 
   const handlePlay = () => {
@@ -28,7 +41,7 @@ export default function PlaybackBar() {
       <div className="bg-[#4B2C6D] h-4 w-full ml-[1px] flex items-center justify-center">
         <div className="bg-[#35184D] h-full w-[126px] flex items-center justify-center">
           <i
-            className="fas fa-angle-double-down text-white text-xs my-1"
+            className="fas fa-angle-double-up text-white text-xs my-1"
             aria-hidden="true"
           ></i>
         </div>
@@ -47,7 +60,7 @@ export default function PlaybackBar() {
           <button
             type="button"
             onClick={handlePlay}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-[#4B2C6D] text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#4B2C6D] text-white"
             aria-label={isPlaying ? "Stop" : "Play"}
           >
             <Play size={16} fill="white" className="ml-0.5" />
@@ -65,19 +78,39 @@ export default function PlaybackBar() {
 
         <div className="flex flex-wrap items-center gap-2">
           {[
-            { label: "Speed", value: "0 kmph" },
-            { label: "Distance", value: "00.00 km" },
-            { label: "Time", value: new Date().toLocaleString("en-GB") },
-            { label: "Total Distance", value: `${totalDistance} km` },
-            { label: "Avg. Speed (km/h)", value: "32.55 kmph" },
-            { label: "Max. Speed (km/h)", value: "60 kmph" },
+            {
+              label: "Speed",
+              value: `${playbackStats.currentSpeed.toFixed(2)} kmph`,
+            },
+            {
+              label: "Distance",
+              value: `${totalDistance} km`,
+            },
+            {
+              label: "Time",
+              value: formatTimestamp(playbackStats.timestamp),
+            },
+            {
+              label: "Total Distance",
+              value: `${totalDistance} km`,
+            },
+            {
+              label: "Avg. Speed (km/h)",
+              value: `${playbackStats.avgSpeed.toFixed(2)} kmph`,
+            },
+            {
+              label: "Max. Speed (km/h)",
+              value: `${playbackStats.maxSpeed.toFixed(2)} kmph`,
+            },
           ].map(({ label, value }) => (
             <div
               key={label}
               className="rounded flex items-center gap-1 px-3 py-1.5 text-center"
             >
               <p className="text-xs text-gray-500">{label}</p>
-              <p className="text-[10px] font-medium bg-gray-300 px-3 py-0.5 rounded-md text-gray-600">{value}</p>
+              <p className="text-[10px] font-medium bg-gray-300 px-3 py-0.5 rounded-md text-gray-600">
+                {value}
+              </p>
             </div>
           ))}
         </div>

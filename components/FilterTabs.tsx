@@ -11,10 +11,23 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTracking } from "@/hooks/useTracking";
 import { RiArrowDropDownFill } from "@remixicon/react";
 
+function formatTime24h(time: string) {
+  const [hours = "0", minutes = "0"] = time.split(":");
+  const parsed = new Date();
+  parsed.setHours(Number(hours), Number(minutes), 0, 0);
+
+  if (Number.isNaN(parsed.getTime())) return "00:00";
+
+  return `${String(parsed.getHours()).padStart(2, "0")}:${String(parsed.getMinutes()).padStart(2, "0")}`;
+}
+
 function formatDateTimeDisplay(date: string, time: string) {
   if (!date) return "";
+
   const [year, month, day] = date.split("-");
-  return `${day}/${month}/${year} ${time || "00:00"}`;
+  const formattedTime = formatTime24h(time || "00:00");
+
+  return `${day}/${month}/${year} ${formattedTime}`;
 }
 
 function toDateTimeLocal(date: string, time: string) {
@@ -23,7 +36,7 @@ function toDateTimeLocal(date: string, time: string) {
 
 function fromDateTimeLocal(value: string) {
   const [date = "", time = ""] = value.split("T");
-  return { date, time: time.slice(0, 5) };
+  return { date, time: formatTime24h(time.slice(0, 5)) };
 }
 
 export default function FilterBar() {
@@ -44,7 +57,7 @@ export default function FilterBar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const dateRangeRef = useRef<HTMLDivElement>(null);
 
-  const { setTrackPath, setTruckData, setStoppages } = useTracking();
+  const { setTrackPath, setTruckData, setStoppages, setHistoryData } = useTracking();
 
   useEffect(() => {
     const fetchAndSeed = async () => {
@@ -156,6 +169,7 @@ export default function FilterBar() {
       }));
 
       setTrackPath(coordinates);
+      setHistoryData(flattenedData);
       setStoppages(detectStoppages(flattenedData));
 
       const latestEvent = flattenedData[flattenedData.length - 1];
@@ -170,6 +184,7 @@ export default function FilterBar() {
     } catch (err) {
       console.error(err);
       setStoppages([]);
+      setHistoryData([]);
       setError(
         err instanceof Error ? err.message : "Failed to fetch tracking data.",
       );
@@ -214,6 +229,9 @@ export default function FilterBar() {
                       onClick={() => {
                         setRegNumber(item.registrationNo);
                         setSearch(item.registrationNo);
+                        setTrackPath([]);
+                        setHistoryData([]);
+                        setStoppages([]);
                         setTruckData((prev) => ({
                           ...prev,
                           truck_no: item.registrationNo,
@@ -247,6 +265,7 @@ export default function FilterBar() {
               <div className="absolute z-50 mt-1 flex items-center gap-2 rounded border border-gray-300 bg-white p-2 shadow-lg">
                 <input
                   type="datetime-local"
+                  lang="en-GB"
                   value={toDateTimeLocal(startDate, startTime)}
                   max={toDateTimeLocal(endDate, endTime) || undefined}
                   onChange={(e) => {
@@ -259,6 +278,7 @@ export default function FilterBar() {
                 <span className="text-xs text-gray-400">-</span>
                 <input
                   type="datetime-local"
+                  lang="en-GB"
                   value={toDateTimeLocal(endDate, endTime)}
                   min={toDateTimeLocal(startDate, startTime) || undefined}
                   onChange={(e) => {
