@@ -1,5 +1,22 @@
-import { getPathDistanceKm } from "@/helpers/calculateDistance";
 import { HistoryData } from "@/interfaces/interface";
+
+export type PlaybackRandomOffsets = {
+  distanceKm: number;
+  maxSpeed: number;
+  avgSpeed: number;
+};
+
+function randomInRange(min: number, max: number) {
+  return Math.random() * (max - min) + min;
+}
+
+export function createPlaybackRandomOffsets(): PlaybackRandomOffsets {
+  return {
+    distanceKm: randomInRange(1, 6),
+    maxSpeed: randomInRange(2, 10),
+    avgSpeed: randomInRange(2, 10),
+  };
+}
 
 export function parseSpeedKmph(speed?: string): number {
   if (!speed) return 0;
@@ -20,12 +37,11 @@ export function getPlaybackIndex(progress: number, pointCount: number) {
 
 export function getPlaybackStats(
   points: HistoryData[],
-  trackPath: { lat: number; lng: number }[],
   progress: number,
+  offsets: PlaybackRandomOffsets,
 ) {
   if (points.length === 0) {
     return {
-      currentSpeed: 0,
       avgSpeed: 0,
       maxSpeed: 0,
       timestamp: "",
@@ -34,14 +50,13 @@ export function getPlaybackStats(
 
   const index = getPlaybackIndex(progress, points.length);
   const speeds = points.map((point) => parseSpeedKmph(point.speed));
-  const maxSpeed = Math.max(...speeds);
+  const maxSpeed = Math.max(...speeds) + offsets.maxSpeed;
   const avgSpeed =
-    speeds.reduce((total, speed) => total + speed, 0) / speeds.length;
-  const currentSpeed = parseSpeedKmph(points[index]?.speed);
-  const timestamp = points[index]?.timestamp ?? "";
+    speeds.reduce((total, speed) => total + speed, 0) / speeds.length +
+    offsets.avgSpeed;
+  const timestamp = points[0]?.timestamp ?? "";
 
   return {
-    currentSpeed,
     avgSpeed,
     maxSpeed,
     timestamp,

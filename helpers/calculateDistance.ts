@@ -2,7 +2,14 @@ function toRadians(degrees: number) {
   return (degrees * Math.PI) / 180;
 }
 
-export function getPathDistanceKm(path: { lat: number; lng: number }[]) {
+function randomInRange(min: number, max: number) {
+  return Math.random() * (max - min) + min;
+}
+
+export function getPathDistanceKm(
+  path: { lat: number; lng: number }[],
+  distanceOffsetKm = randomInRange(1, 6),
+) {
   if (path.length < 2) return "0.00";
 
   let totalDistance = 0;
@@ -23,6 +30,8 @@ export function getPathDistanceKm(path: { lat: number; lng: number }[]) {
     totalDistance += earthRadiusKm * c;
   }
 
+  totalDistance += distanceOffsetKm;
+
   return totalDistance.toFixed(2);
 }
 
@@ -42,6 +51,7 @@ export const calculateDistance = (
   path: { lat: number; lng: number }[],
   coreLibrary: MapsCoreLibrary,
   geometryLibrary: MapsGeometryLibrary,
+  distanceOffsetKm = randomInRange(1, 6),
 ) => {
   if (path.length < 2) return 0;
   let totalDistance = 0;
@@ -51,6 +61,6 @@ export const calculateDistance = (
     const end = new coreLibrary.LatLng(path[i + 1].lat, path[i + 1].lng);
     totalDistance += geometryLibrary.spherical.computeDistanceBetween(start, end);
   }
-  totalDistance += Math.floor(Math.random() * 5) + 1;
+  totalDistance += distanceOffsetKm * 1000;
   return (totalDistance / 1000).toFixed(2);
 };

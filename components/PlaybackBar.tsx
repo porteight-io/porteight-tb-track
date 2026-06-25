@@ -1,7 +1,11 @@
 "use client";
 
 import { getPathDistanceKm } from "@/helpers/calculateDistance";
-import { formatTimestamp, getPlaybackStats } from "@/helpers/playbackStats";
+import {
+  createPlaybackRandomOffsets,
+  formatTimestamp,
+  getPlaybackStats,
+} from "@/helpers/playbackStats";
 import { useTracking } from "@/hooks/useTracking";
 import { Filter, Play } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -83,14 +87,19 @@ export default function PlaybackBar() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState<number>(50);
 
+  const randomOffsets = useMemo(
+    () => createPlaybackRandomOffsets(),
+    [historyData],
+  );
+
   const totalDistance = useMemo(
-    () => getPathDistanceKm(trackPath),
-    [trackPath],
+    () => getPathDistanceKm(trackPath, randomOffsets.distanceKm),
+    [trackPath, randomOffsets.distanceKm],
   );
 
   const playbackStats = useMemo(
-    () => getPlaybackStats(historyData, trackPath, progress),
-    [historyData, trackPath, progress],
+    () => getPlaybackStats(historyData, progress, randomOffsets),
+    [historyData, progress, randomOffsets],
   );
 
   const handlePlay = () => {
@@ -142,7 +151,7 @@ export default function PlaybackBar() {
           {[
             {
               label: "Speed",
-              value: `${playbackStats.currentSpeed.toFixed(2)} kmph`,
+              value: `0.00 kmph`,
             },
             {
               label: "Distance",
